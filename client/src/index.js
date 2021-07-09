@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
+import 'react-table-v6/react-table.css'
 
 ReactDOM.render(
   <React.StrictMode>

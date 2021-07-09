@@ -1,12 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import ReactTable from 'react-table-v6'
 import axios from 'axios'
 
 const App = () => {
   const [transactionState, setTransactionState] = useState({
     label: '',
     amount: '',
-    type: 'deposit'
+    type: 'deposit',
+    transactions: []
   })
+
+  const columns = [
+    {
+      Header: 'Label',
+      accessor: 'label',
+      filterable: true,
+      searchable: true
+    },
+    {
+      Header: 'Amount',
+      accessor: 'amount'
+    },
+    {
+      Header: 'Type',
+      accessor: 'type'
+    }
+  ]
 
   const handleInputChange = ({ target }) => {
     setTransactionState({ ...transactionState, [target.name]: target.value })
@@ -20,10 +39,20 @@ const App = () => {
       type: transactionState.type
     })
       .then(({ data: transaction }) => {
-        console.log(transaction)
+        const transactions = [...transactionState.transactions]
+        transactions.push(transaction)
+        setTransactionState({ ...transactionState, transactions, label: '', amount: '' })
       })
       .catch(err => console.error(err))
   }
+
+  useEffect(() => {
+    axios.get('/api/transactions')
+      .then(({ data: transactions }) => {
+        setTransactionState({ ...transactionState, transactions })
+      })
+      .catch(err => console.error(err))
+  }, [])
   return (
     <>
       <h1>Budget App</h1>
@@ -59,6 +88,10 @@ const App = () => {
         </p>
         <button onClick={handleSaveTransaction}>Add Transaction</button>
       </form>
+      <ReactTable
+        data={transactionState.transactions}
+        columns={columns}
+      />
     </>
   )
 }
